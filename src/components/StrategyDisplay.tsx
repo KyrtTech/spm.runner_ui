@@ -6,35 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ChevronDown, ChevronUp } from 'lucide-react'
-
-interface SupportFile {
-  accessUrl: string
-  localPath: string
-}
-
-interface Param {
-  name?: string
-  type?: string
-  minValue?: string
-  recommendedValue?: string
-  spmParam?: string
-  param?: string
-  description?: string
-}
-
-interface Strategy {
-  title: string
-  description: string
-  uri: string
-  scripts: string[]
-  uninstallScripts: string[] | null
-  supportFiles: SupportFile[]
-  downloadURL: string | null
-  runner: string | null
-  optionalParams: Param[]
-  requirementParams: Param[]
-  alternatives: Strategy[]
-}
+import { getStrategies, type Strategy } from '../sdk.ts'  // Updated import
 
 export default function StrategyDisplay() {
   const [data, setData] = useState<Strategy[]>([])
@@ -45,16 +17,7 @@ export default function StrategyDisplay() {
   useEffect(() => {
     const fetchStrategies = async () => {
       try {
-        const endpoint = `${import.meta.env.VITE_API_URL}/job`;
-
-        if (!endpoint) {
-          throw new Error('API_URL is not defined')
-        }
-        const response = await fetch(endpoint)
-        if (!response.ok) {
-          throw new Error('Failed to fetch strategies')
-        }
-        const strategies: Strategy[] = await response.json()
+        const strategies: Strategy[] = await getStrategies()  // Added type annotation
         setData(strategies)
         setExpandedStates(new Array(strategies.length).fill(false))
       } catch (err) {
