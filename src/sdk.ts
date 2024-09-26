@@ -31,7 +31,7 @@ export interface Strategy {
     alternatives: Strategy[]
 }
 
-export async function getStrategies(): Promise<Strategy[]> {
+export async function getInstallPlan(): Promise<Strategy[]> {
     if (!endpoint) {
         throw new Error('API_URL is not defined')
     }

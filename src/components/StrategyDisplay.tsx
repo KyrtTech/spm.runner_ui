@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { getStrategies, type Strategy } from '../sdk.ts'  // Updated import
+import { getInstallPlan, type Strategy } from '../sdk.ts'  // Updated import
 
 export default function StrategyDisplay() {
   const [data, setData] = useState<Strategy[]>([])
@@ -17,7 +17,7 @@ export default function StrategyDisplay() {
   useEffect(() => {
     const fetchStrategies = async () => {
       try {
-        const strategies: Strategy[] = await getStrategies()  // Added type annotation
+        const strategies: Strategy[] = await getInstallPlan()  // Added type annotation
         setData(strategies)
         setExpandedStates(new Array(strategies.length).fill(false))
       } catch (err) {
