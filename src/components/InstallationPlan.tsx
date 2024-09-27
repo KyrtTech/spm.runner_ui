@@ -8,9 +8,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { getInstallPlan, startPlan, type Strategy } from '../sdk.ts'  // Updated import
+import { getInstallPlan, startPlan, type Strategy } from '@/sdk.ts'
 
-export default function StrategyDisplay() {
+export default function InstallationPlanDisplay() {
   const [data, setData] = useState<Strategy[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
