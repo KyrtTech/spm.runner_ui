@@ -1,0 +1,66 @@
+import React from 'react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, Folder, ChevronDown } from 'lucide-react'; // Import ChevronDown
+
+// Define the structure types
+export interface TreeNode {
+    name: string;
+    type: "file" | "folder";
+    url?: string;
+    children?: TreeNode[];
+}
+
+// Recursive component to render the tree structure
+const Tree: React.FC<{ nodes: TreeNode[]; level?: number }> = ({ nodes, level = 0 }) => {
+    return (
+        <div className={`${level > 0 ? 'ml-4' : ''}`}>
+            {nodes.map((node, index) => (
+                <div key={index}>
+                    {node.type === "folder" ? (
+                        <Accordion type="single" collapsible>
+                            <AccordionItem value={node.name}>
+                                <AccordionTrigger className="flex justify-between items-center py-2 w-full">
+                                    <div className="flex items-center">
+                                        <Folder className="h-4 w-4 mr-2" />
+                                        <span className="font-semibold">{node.name}/</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    {node.children && <Tree nodes={node.children} level={level + 1} />}
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
+                    ) : (
+                        <div className="flex items-center space-x-2">
+                            <span>{node.name}</span>
+                            {node.url && (
+                                <Button asChild variant="ghost" size="icon" className="h-4 w-4 p-0">
+                                    <a
+                                        href={node.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        title="View original"
+                                    >
+                                        <ExternalLink className="h-3 w-3" />
+                                    </a>
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// Main component to display the folder structure
+const FileTreeDisplay: React.FC<{folderStructure: TreeNode[]}> = ({folderStructure}) => {
+    return (
+        <div className="container mx-auto">
+            <Tree nodes={folderStructure} />
+        </div>
+    );
+};
+
+export default FileTreeDisplay;

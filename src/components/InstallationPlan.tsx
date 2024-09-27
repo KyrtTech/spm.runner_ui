@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getInstallPlan, startPlan, type Strategy } from '@/sdk.ts'
+import { default as FileTreeDisplay, TreeNode } from '@/components/FileTreeComponent';
 
 export default function InstallationPlanDisplay() {
   const [data, setData] = useState<Strategy[]>([])
@@ -61,6 +62,37 @@ export default function InstallationPlanDisplay() {
     return <div>Error: {error}</div>
   }
 
+  const buildFileTree = (files: { localPath: string; accessUrl: string }[]): TreeNode[] => {
+    const root: TreeNode = { name: 'root', type: 'folder', children: [] };
+
+    files.forEach(file => {
+      const parts = file.localPath.split('/');
+      let currentNode = root;
+
+      parts.forEach((part, index) => {
+        if (index === parts.length - 1) {
+          // This is a file
+          currentNode.children?.push({
+            name: part,
+            type: 'file',
+            url: file.accessUrl
+          });
+        } else {
+          // This is a folder
+          let child = currentNode.children?.find(c => c.name === part && c.type === 'folder');
+          if (!child) {
+            child = { name: part, type: 'folder', children: [] };
+            currentNode.children?.push(child);
+            currentNode.children?.sort((a, b) => a.type.localeCompare(b.type));
+          }
+          currentNode = child;
+        }
+      });
+    });
+
+    return root.children || [];
+  };
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Installation Strategies</h1>
@@ -109,11 +141,12 @@ export default function InstallationPlanDisplay() {
                   )}
 
                   <h3 className="font-semibold mt-4 mb-2">Support Files:</h3>
-                  <ul className="list-disc pl-5 mb-2">
-                    {strategy.supportFiles.map((file, index) => (
-                      <li key={index}>{file.localPath} ({file.accessUrl})</li>
-                    ))}
-                  </ul>
+                  
+                  {strategy.supportFiles.length > 0 ? (
+                    <FileTreeDisplay folderStructure={buildFileTree(strategy.supportFiles)} />
+                  ) : (
+                    <p>No support files available.</p>
+                  )}
 
                   {strategy.downloadURL && (
                     <p className="mb-2"><strong>Download URL:</strong> {strategy.downloadURL}</p>
