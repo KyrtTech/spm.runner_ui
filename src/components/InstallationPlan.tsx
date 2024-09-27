@@ -6,11 +6,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getInstallPlan, startPlan, type Strategy } from '@/sdk.ts'
 import { default as FileTreeDisplay, TreeNode } from '@/components/FileTreeComponent';
-import { getFileIconClass } from '@/lib/utils'
+import DownloadLink from './DownloadLink';
 
 export default function InstallationPlanDisplay() {
   const [data, setData] = useState<Strategy[]>([])
@@ -126,7 +126,7 @@ export default function InstallationPlanDisplay() {
                   <h3 className="font-semibold mt-4 mb-2">Install Scripts:</h3>
                   <ul className="list-disc pl-5 mb-2">
                     {strategy.scripts.map((script, index) => (
-                      <li key={index}>{script}</li>
+                      <li key={index}><DownloadLink url={script} /></li>
                     ))}
                   </ul>
 
@@ -135,7 +135,7 @@ export default function InstallationPlanDisplay() {
                       <h3 className="font-semibold mt-4 mb-2">Uninstall Scripts:</h3>
                       <ul className="list-disc pl-5 mb-2">
                         {strategy.uninstallScripts.map((script, index) => (
-                          <li key={index}>{script}</li>
+                          <li key={index}><DownloadLink url={script} /></li>
                         ))}
                       </ul>
                     </>
@@ -152,18 +152,7 @@ export default function InstallationPlanDisplay() {
                   {strategy.downloadURL && (
                     <div className="flex items-center space-x-2 mb-2">
                       <strong>Download URL:</strong>
-                      {getFileIconClass(strategy.downloadURL.split('/').pop() || '')}
-                      <span title={strategy.downloadURL}>{strategy.downloadURL.split('/').pop()}</span>
-                      <Button asChild variant="ghost" size="icon" className="h-4 w-4 p-0">
-                        <a
-                          href={strategy.downloadURL}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title={strategy.downloadURL}
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </Button>
+                      <DownloadLink url={strategy.downloadURL} />
                     </div>
                   )}
 
