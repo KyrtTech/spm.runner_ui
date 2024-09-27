@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import 'devicon/devicon.min.css';
 import InstallationPlanDisplay from '@/components/InstallationPlan'
 import EvaluateEnvVars from '@/components/EvaluateEnvVars'
 
