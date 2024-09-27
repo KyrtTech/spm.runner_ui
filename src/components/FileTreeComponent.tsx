@@ -13,13 +13,13 @@ export interface TreeNode {
 }
 
 // Recursive component to render the tree structure
-const Tree: React.FC<{ nodes: TreeNode[]; level?: number }> = ({ nodes, level = 0 }) => {
+const Tree: React.FC<{ nodes: TreeNode[]; level?: number, opened?: boolean }> = ({ nodes, level = 0, opened = false }) => {
     return (
         <div className={`${level > 0 ? 'ml-4' : ''}`}>
             {nodes.map((node, index) => (
                 <div key={index}>
                     {node.type === "folder" ? (
-                        <Accordion type="single" collapsible>
+                        <Accordion type="single" collapsible defaultValue={opened ? node.name : undefined}>
                             <AccordionItem value={node.name}>
                                 <AccordionTrigger className="flex justify-between items-center py-2 w-full">
                                     <div className="flex items-center">
@@ -57,10 +57,10 @@ const Tree: React.FC<{ nodes: TreeNode[]; level?: number }> = ({ nodes, level = 
 };
 
 // Main component to display the folder structure
-const FileTreeDisplay: React.FC<{ folderStructure: TreeNode[] }> = ({ folderStructure }) => {
+const FileTreeDisplay: React.FC<{ folderStructure: TreeNode[], openFirstLevel?: boolean }> = ({ folderStructure, openFirstLevel = false }) => {
     return (
         <div className="container mx-auto">
-            <Tree nodes={folderStructure} />
+            <Tree nodes={folderStructure} opened={openFirstLevel} />
         </div>
     );
 };

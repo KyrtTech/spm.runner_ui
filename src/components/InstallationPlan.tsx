@@ -123,7 +123,7 @@ export default function InstallationPlanDisplay() {
                   <p className="mb-2">{strategy.description}</p>
                   <p className="mb-2"><strong>URI:</strong> {strategy.uri}</p>
 
-                  <h3 className="font-semibold mt-4 mb-2">Scripts:</h3>
+                  <h3 className="font-semibold mt-4 mb-2">Install Scripts:</h3>
                   <ul className="list-disc pl-5 mb-2">
                     {strategy.scripts.map((script, index) => (
                       <li key={index}>{script}</li>
@@ -144,7 +144,7 @@ export default function InstallationPlanDisplay() {
                   <h3 className="font-semibold mt-4 mb-2">Support Files:</h3>
 
                   {strategy.supportFiles.length > 0 ? (
-                    <FileTreeDisplay folderStructure={buildFileTree(strategy.supportFiles)} />
+                    <FileTreeDisplay folderStructure={buildFileTree(strategy.supportFiles)} openFirstLevel={true} />
                   ) : (
                     <p>No support files available.</p>
                   )}
