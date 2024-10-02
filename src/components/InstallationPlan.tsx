@@ -6,6 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from '@/components/ui/button.tsx'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getInstallPlan, startPlan, type Strategy } from '@/sdk.ts'
@@ -52,7 +53,7 @@ export default function InstallationPlanDisplay() {
 
   const handleNext = async () => {
     await startPlan();
-    navigate('/evaluate-env-vars') // Replace '/next-page' with your desired route
+    navigate('/evaluate-env-vars')
   }
 
   if (loading) {
@@ -156,10 +157,6 @@ export default function InstallationPlanDisplay() {
                     </div>
                   )}
 
-                  {strategy.runner && (
-                    <p className="mb-2"><strong>Runner:</strong> {strategy.runner}</p>
-                  )}
-
                   <h3 className="font-semibold mt-4 mb-2">Optional Parameters:</h3>
                   {strategy.optionalParams.length > 0 ? (
                     strategy.optionalParams.map((param, paramIndex) => (
@@ -186,9 +183,28 @@ export default function InstallationPlanDisplay() {
                     <ul className="list-disc pl-5 mb-2">
                       {strategy.requirementParams.map((param, index) => (
                         <li key={index}>
-                          <strong>{param.type}</strong>
+                          <strong>{param.type?.split('/').pop()}</strong>
                           <br />
-                          Minimum: {param.minValue}, Recommended: {param.recommendedValue}
+                          <div className="flex items-center space-x-4">
+                            <RadioGroup
+                              defaultValue={param.recommendedValue}
+                              name={`param-${strategyIndex}-${index}`}
+                              onValueChange={(value) => {
+                                const newData = [...data];
+                                newData[strategyIndex].requirementParams[index].selectedValue = value;
+                                setData(newData);
+                              }}
+                            >
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value={param.minValue || ''} id={`min-${strategyIndex}-${index}`} />
+                                <Label htmlFor={`min-${strategyIndex}-${index}`}>Minimum: {param.minValue}</Label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value={param.recommendedValue || ''} id={`recommended-${strategyIndex}-${index}`} />
+                                <Label htmlFor={`recommended-${strategyIndex}-${index}`}>Recommended: {param.recommendedValue}</Label>
+                              </div>
+                            </RadioGroup>
+                          </div>
                           <br />
                           SPM Param: {param.spmParam}
                         </li>

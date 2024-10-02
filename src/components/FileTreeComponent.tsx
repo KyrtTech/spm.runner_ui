@@ -19,8 +19,8 @@ const Tree: React.FC<{ nodes: TreeNode[]; level?: number, opened?: boolean }> = 
             {nodes.map((node, index) => (
                 <div key={index}>
                     {node.type === "folder" ? (
-                        <Accordion type="single" collapsible defaultValue={opened ? node.name : undefined}>
-                            <AccordionItem value={node.name}>
+                        <Accordion type="single" collapsible defaultValue={opened ? node.name : undefined} className="border-none">
+                            <AccordionItem value={node.name} className="border-none">
                                 <AccordionTrigger className="flex justify-between items-center py-2 w-full">
                                     <div className="flex items-center">
                                         <Folder className="h-4 w-4 mr-2" />
