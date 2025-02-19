@@ -33,11 +33,28 @@ export interface EnvVar {
     value: string
 }
 
+export interface InfraConfigValue {
+    name: string;
+    uri: string;
+}
+
+export interface InfraConfig {
+    name: string;
+    isBuildable: boolean;
+    values: InfraConfigValue[];
+}
+export interface InfraProvider {
+    name: string;
+    description: string;
+    logo: string;
+    config: InfraConfig[];
+}
+
 export async function getInstallPlan(): Promise<Strategy[]> {
-    const endpoint = `${import.meta.env.VITE_API_URL}/job`;
+    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/job`;
 
     if (!endpoint) {
-        throw new Error('API_URL is not defined')
+        throw new Error('RUNNER_API_URL is not defined')
     }
     const response = await fetch(endpoint)
     if (!response.ok) {
@@ -49,10 +66,10 @@ export async function getInstallPlan(): Promise<Strategy[]> {
 }
 
 export async function startPlan(): Promise<void> {
-    const endpoint = `${import.meta.env.VITE_API_URL}/start-job`;
+    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/start-job`;
 
     if (!endpoint) {
-        throw new Error('API_URL is not defined')
+        throw new Error('RUNNER_API_URL is not defined')
     }
     const response = await fetch(endpoint, {
         method: 'PATCH',
@@ -66,10 +83,10 @@ export async function startPlan(): Promise<void> {
     }
 }
 export async function getPlanEnvVars(): Promise<EnvVar[]> {
-    const endpoint = `${import.meta.env.VITE_API_URL}/envs`;
+    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
 
     if (!endpoint) {
-        throw new Error('API_URL is not defined')
+        throw new Error('RUNNER_API_URL is not defined')
     }
     const response = await fetch(endpoint);
 
@@ -87,10 +104,10 @@ export async function getPlanEnvVars(): Promise<EnvVar[]> {
 }
 
 export async function updateEnvVars(envVars: EnvVar[]): Promise<void> {
-    const endpoint = `${import.meta.env.VITE_API_URL}/envs`;
+    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
 
     if (!endpoint) {
-        throw new Error('API_URL is not defined')
+        throw new Error('RUNNER_API_URL is not defined')
     }
 
     await fetch(endpoint, {
@@ -100,5 +117,25 @@ export async function updateEnvVars(envVars: EnvVar[]): Promise<void> {
         },
         body: JSON.stringify(Object.fromEntries(envVars.map(({ key, value }) => [key, value]))),
     });
+}
 
-}   
+export async function getInfraProviders(): Promise<InfraProvider[]> {
+    const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/infra-providers`;
+
+    if (!endpoint) {
+        throw new Error('REGISTRY_API_URL is not defined')
+    }
+
+    const response = await fetch(endpoint, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error('Error while getting infra providers')
+    }
+
+    return response.json();
+}

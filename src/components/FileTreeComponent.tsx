@@ -1,7 +1,7 @@
 import React from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Folder } from 'lucide-react'; // Import ChevronDown
+import { ExternalLink, Folder } from 'lucide-react';
 import { getFileIconClass } from '@/lib/utils';
 
 // Define the structure types

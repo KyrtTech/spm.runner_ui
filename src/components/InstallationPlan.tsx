@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { getInstallPlan, startPlan, type Strategy } from '@/sdk.ts'
+import { getInstallPlan, startPlan, type Strategy } from '@/sdk'
 import { default as FileTreeDisplay, TreeNode } from '@/components/FileTreeComponent';
 import DownloadLink from './DownloadLink';
 
@@ -24,7 +24,7 @@ export default function InstallationPlanDisplay() {
   useEffect(() => {
     const fetchStrategies = async () => {
       try {
-        const strategies: Strategy[] = await getInstallPlan()  // Added type annotation
+        const strategies: Strategy[] = await getInstallPlan()
         setData(strategies)
         setExpandedStates(new Array(strategies.length).fill(false))
       } catch (err) {
