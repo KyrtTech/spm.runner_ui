@@ -5,36 +5,54 @@ import { Select, SelectItem, SelectTrigger, SelectContent } from '@/components/u
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from 'react';
-import { getInfraProviders } from '@/sdk';
-import { enrichInfraProvider, ResolvedInfraProvider } from '@/lib/enrich';
+import { getInfraProviders, getServices } from '@/sdk';
+import { enrichInfraProvider, enrichService, ResolvedInfraProvider, ResolvedService } from '@/lib/enrich';
+import { ServiceCard } from '@/components/ServiceCard';
 
 export default function InfraProvidersList() {
-    const { data, error, isLoading } = useQuery({ queryKey: ['infraProviders'], queryFn: getInfraProviders });
+    const { data: infraProvidersData, error: infraProvidersError, isLoading: infraProvidersIsLoading } = useQuery({ queryKey: ['infraProviders'], queryFn: getInfraProviders });
+    const { data: servicesData, error: servicesError, isLoading: servicesIsLoading } = useQuery({ queryKey: ['services'], queryFn: getServices });
     const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
     const [infraProviders, setInfraProviders] = useState<ResolvedInfraProvider[]>();
     const [selectedProvider, setSelectedProvider] = useState<string>('');
+    const [selectedService, setSelectedService] = useState<string>('');
+    const [services, setServices] = useState<ResolvedService[]>([]);
 
     useEffect(() => {
-        if (!data) {
+        if (!infraProvidersData) {
             return;
         }
 
         const enrich = async () => {
-            const infraProviders = await Promise.all(data.map(enrichInfraProvider))
+            const infraProviders = await Promise.all(infraProvidersData.map(enrichInfraProvider))
             setInfraProviders(infraProviders);
         };
 
         enrich();
-    }, [data]);
+    }, [infraProvidersData]);
 
-    if (isLoading || !infraProviders) return <p>Loading providers...</p>;
-    if (error) return <p>Error loading providers.</p>;
+    useEffect(() => {
+        if (!servicesData) {
+            return;
+        }
+
+        const enrich = async () => {
+            const services = await Promise.all(servicesData.map(enrichService))
+            setServices(services);
+        }
+
+        enrich();
+    }, [servicesData]);
+
+    if (infraProvidersIsLoading || servicesIsLoading || !infraProviders || !services) return <p>Loading providers and services...</p>;
+    if (infraProvidersError || servicesError) return <p>Error loading providers and services.</p>;
 
     return (
         <div className='p-8'>
+            <h1 className='text-2xl font-bold mb-4'>Infra Providers</h1>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {infraProviders?.map((provider) => (
-                    <Card key={provider.name} className={selectedProvider === provider.name ? 'border-2 border-blue-500' : ''} onClick={() => setSelectedProvider(provider.name)} style={{cursor: 'pointer'}}>
+                    <Card key={provider.name} className={selectedProvider === provider.name ? 'border-2 border-blue-500' : ''} onClick={() => setSelectedProvider(provider.name)} style={{ cursor: 'pointer' }}>
                         <CardHeader>
                             <div className='flex items-center gap-4'>
                                 <Avatar>
@@ -53,7 +71,7 @@ export default function InfraProvidersList() {
                             <div className='mt-4'>
                                 {provider.config.map((config) => (
                                     <div key={config.name} className='mt-2'>
-                                        <p className='text-sm font-medium flex justify-between'>
+                                        <div className='text-sm font-medium flex justify-between'>
                                             {config.name}
 
                                             <TooltipProvider>
@@ -67,9 +85,9 @@ export default function InfraProvidersList() {
                                                 </Tooltip>
                                             </TooltipProvider>
 
-                                        </p>
+                                        </div>
                                         {config.isBuildable ? (
-                                            <p className='text-sm text-green-600'>Buildable Configuration</p>
+                                            <div className='text-sm text-green-600'>Buildable Configuration</div>
                                         ) : (
                                             <Select
                                                 onValueChange={(value) =>
@@ -80,7 +98,7 @@ export default function InfraProvidersList() {
                                                 <SelectTrigger>{selectedValues[config.name] || 'Select an option'}</SelectTrigger>
                                                 <SelectContent>
                                                     {config.values.map((option) => (
-                                                        <SelectItem key={option.uri} value={option.uri}>
+                                                        <SelectItem key={option.uri} value={option.name}>
                                                             {option.name}
                                                         </SelectItem>
                                                     ))}
@@ -92,6 +110,17 @@ export default function InfraProvidersList() {
                             </div>
                         </CardContent>
                     </Card>
+                ))}
+            </div>
+            <h1 className='text-2xl font-bold mt-8 mb-4'>Services</h1>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                {services.map((service) => (
+                    <ServiceCard
+                        key={service.name}
+                        service={service}
+                        isSelected={selectedService === service.name}
+                        onSelect={setSelectedService}
+                    />
                 ))}
             </div>
         </div>

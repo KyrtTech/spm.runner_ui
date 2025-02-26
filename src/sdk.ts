@@ -1,141 +1,178 @@
 // Define and export the Strategy interface
 interface SupportFile {
-    accessUrl: string
-    localPath: string
+  accessUrl: string;
+  localPath: string;
 }
 
 interface Param {
-    name?: string
-    type?: string
-    minValue?: string
-    recommendedValue?: string
-    spmParam?: string
-    param?: string
-    description?: string
+  name?: string;
+  type?: string;
+  minValue?: string;
+  recommendedValue?: string;
+  spmParam?: string;
+  param?: string;
+  description?: string;
 }
 
 export interface Strategy {
-    title: string
-    description: string
-    uri: string
-    scripts: string[]
-    uninstallScripts: string[] | null
-    supportFiles: SupportFile[]
-    downloadURL: string | null
-    runner: string | null
-    optionalParams: Param[]
-    requirementParams: Param[]
-    alternatives: Strategy[]
+  title: string;
+  description: string;
+  uri: string;
+  scripts: string[];
+  uninstallScripts: string[] | null;
+  supportFiles: SupportFile[];
+  downloadURL: string | null;
+  runner: string | null;
+  optionalParams: Param[];
+  requirementParams: Param[];
+  alternatives: Strategy[];
 }
 
 export interface EnvVar {
-    key: string
-    value: string
+  key: string;
+  value: string;
 }
 
 export interface InfraConfigValue {
-    name: string;
-    uri: string;
+  name: string;
+  uri: string;
 }
 
 export interface InfraConfig {
-    name: string;
-    isBuildable: boolean;
-    values: InfraConfigValue[];
+  name: string;
+  isBuildable: boolean;
+  values: InfraConfigValue[];
 }
 export interface InfraProvider {
-    name: string;
-    description: string;
-    logo: string;
-    config: InfraConfig[];
+  name: string;
+  description: string;
+  logo: string;
+  config: InfraConfig[];
+}
+
+export interface ServiceDependency {
+  name: string;
+  uri: string;
+  version: string;
+}
+
+export interface Service {
+  name: string;
+  description?: string;
+  logo: string;
+  version: string;
+  downloadUrl: string;
+  dependsOn: ServiceDependency[];
 }
 
 export async function getInstallPlan(): Promise<Strategy[]> {
-    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/job`;
+  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/job`;
 
-    if (!endpoint) {
-        throw new Error('RUNNER_API_URL is not defined')
-    }
-    const response = await fetch(endpoint)
-    if (!response.ok) {
-        throw new Error('Failed to fetch strategies')
-
-    }
-    const strategies: Strategy[] = await response.json()
-    return strategies
+  if (!endpoint) {
+    throw new Error("RUNNER_API_URL is not defined");
+  }
+  const response = await fetch(endpoint);
+  if (!response.ok) {
+    throw new Error("Failed to fetch strategies");
+  }
+  const strategies: Strategy[] = await response.json();
+  return strategies;
 }
 
 export async function startPlan(): Promise<void> {
-    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/start-job`;
+  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/start-job`;
 
-    if (!endpoint) {
-        throw new Error('RUNNER_API_URL is not defined')
-    }
-    const response = await fetch(endpoint, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
+  if (!endpoint) {
+    throw new Error("RUNNER_API_URL is not defined");
+  }
+  const response = await fetch(endpoint, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    if (!response.ok) {
-        throw new Error('Failed to start plan')
-    }
+  if (!response.ok) {
+    throw new Error("Failed to start plan");
+  }
 }
 export async function getPlanEnvVars(): Promise<EnvVar[]> {
-    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
+  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
 
-    if (!endpoint) {
-        throw new Error('RUNNER_API_URL is not defined')
-    }
-    const response = await fetch(endpoint);
+  if (!endpoint) {
+    throw new Error("RUNNER_API_URL is not defined");
+  }
+  const response = await fetch(endpoint);
 
-    if (!response.ok) {
-        throw new Error('Failed to fetch environment variables')
-    }
+  if (!response.ok) {
+    throw new Error("Failed to fetch environment variables");
+  }
 
-    const envVarsMap: Record<string, string> = await response.json();
-    const envVars: EnvVar[] = Object.entries(envVarsMap).map(([key, value]) => ({
-        key,
-        value
-    }));
+  const envVarsMap: Record<string, string> = await response.json();
+  const envVars: EnvVar[] = Object.entries(envVarsMap).map(([key, value]) => ({
+    key,
+    value,
+  }));
 
-    return envVars;
+  return envVars;
 }
 
 export async function updateEnvVars(envVars: EnvVar[]): Promise<void> {
-    const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
+  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
 
-    if (!endpoint) {
-        throw new Error('RUNNER_API_URL is not defined')
-    }
+  if (!endpoint) {
+    throw new Error("RUNNER_API_URL is not defined");
+  }
 
-    await fetch(endpoint, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(Object.fromEntries(envVars.map(({ key, value }) => [key, value]))),
-    });
+  await fetch(endpoint, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(
+      Object.fromEntries(envVars.map(({ key, value }) => [key, value]))
+    ),
+  });
 }
 
 export async function getInfraProviders(): Promise<InfraProvider[]> {
-    const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/infra-providers`;
+  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/infra-providers`;
 
-    if (!endpoint) {
-        throw new Error('REGISTRY_API_URL is not defined')
-    }
+  if (!endpoint) {
+    throw new Error("REGISTRY_API_URL is not defined");
+  }
 
-    const response = await fetch(endpoint, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    });
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    if (!response.ok) {
-        throw new Error('Error while getting infra providers')
-    }
+  if (!response.ok) {
+    throw new Error("Error while getting infra providers");
+  }
 
-    return response.json();
+  return response.json();
+}
+
+export async function getServices(): Promise<Service[]> {
+  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/services`;
+
+  if (!endpoint) {
+    throw new Error("REGISTRY_API_URL is not defined");
+  }
+
+  const response = await fetch(endpoint, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Error while getting services");
+  }
+
+  return response.json();
 }
