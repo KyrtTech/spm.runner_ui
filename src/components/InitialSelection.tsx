@@ -11,7 +11,7 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
-export default function InfraProvidersList() {
+export default function InitialSelection() {
     const { data: infraProvidersData, error: infraProvidersError, isLoading: infraProvidersIsLoading } = useQuery({ queryKey: ['infraProviders'], queryFn: getInfraProviders });
     const { data: servicesData, error: servicesError, isLoading: servicesIsLoading } = useQuery({ queryKey: ['services'], queryFn: getServices });
     const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
