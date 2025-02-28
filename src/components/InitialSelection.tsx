@@ -10,14 +10,17 @@ import { enrichInfraProvider, enrichService, ResolvedInfraProvider, ResolvedServ
 import { ServiceCard } from '@/components/ServiceCard';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { useWizardStore } from '@/store/wizardStore'
 
 export default function InitialSelection() {
+    const navigate = useNavigate();
     const { data: infraProvidersData, error: infraProvidersError, isLoading: infraProvidersIsLoading } = useQuery({ queryKey: ['infraProviders'], queryFn: getInfraProviders });
     const { data: servicesData, error: servicesError, isLoading: servicesIsLoading } = useQuery({ queryKey: ['services'], queryFn: getServices });
     const [selectedValues, setSelectedValues] = useState<Record<string, string>>({});
     const [infraProviders, setInfraProviders] = useState<ResolvedInfraProvider[]>();
-    const [selectedProvider, setSelectedProvider] = useState<string>('');
-    const [selectedService, setSelectedService] = useState<string>('');
+    const { setInfraProvider, selectedInfraProvider, selectedService } = useWizardStore()
     const [services, setServices] = useState<ResolvedService[]>([]);
 
     useEffect(() => {
@@ -54,7 +57,7 @@ export default function InitialSelection() {
             <h1 className='text-2xl font-bold mb-4'>Infra Providers</h1>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {infraProviders?.map((provider) => (
-                    <Card key={provider.name} className={selectedProvider === provider.name ? 'border-2 border-blue-500' : ''}>
+                    <Card key={provider.name} className={selectedInfraProvider?.name === provider.name ? 'border-2 border-blue-500' : ''}>
                         <CardHeader>
                             <div className='flex items-center gap-4'>
                                 <Avatar>
@@ -62,7 +65,7 @@ export default function InitialSelection() {
                                 </Avatar>
                                 <CardTitle>{provider.name}</CardTitle>
                                 <div className='ml-auto flex items-center space-x-2'>
-                                    <Switch id={provider.name} checked={selectedProvider === provider.name} onCheckedChange={() => setSelectedProvider(provider.name)} />
+                                    <Switch id={provider.name} checked={selectedInfraProvider?.name === provider.name} onCheckedChange={() => setInfraProvider(provider)} />
                                     <Label htmlFor={provider.name} className='cursor-pointer'>Select</Label>
                                 </div>
                             </div>
@@ -119,10 +122,16 @@ export default function InitialSelection() {
                     <ServiceCard
                         key={service.name}
                         service={service}
-                        isSelected={selectedService === service.name}
-                        onSelect={setSelectedService}
                     />
                 ))}
+            </div>
+            <div className='mt-8 flex justify-end'>
+                <Button 
+                    onClick={() => navigate('/project-setup')}
+                    disabled={!selectedInfraProvider || !selectedService}
+                >
+                    Next
+                </Button>
             </div>
         </div>
     );

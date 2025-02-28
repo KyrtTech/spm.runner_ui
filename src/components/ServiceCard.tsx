@@ -6,24 +6,26 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ResolvedService } from '@/lib/enrich';
 import { getFileIconClass } from '@/lib/utils';
+import { useWizardStore } from '@/store/wizardStore'
 
 interface ServiceCardProps {
     service: ResolvedService;
-    isSelected: boolean;
-    onSelect: (name: string) => void;
 }
 
-export function ServiceCard({ service, isSelected, onSelect }: ServiceCardProps) {
+export function ServiceCard({ service }: ServiceCardProps) {
+    const { setService, selectedService } = useWizardStore()
     const [showDependencies, setShowDependencies] = useState<boolean>(false);
 
     return (
-        <Card className={isSelected ? 'border-2 border-blue-500' : ''}>
+        <Card
+            className={selectedService?.name === service.name ? 'border-2 border-blue-500' : ''}
+        >
             <CardHeader>
                 <CardTitle className="flex items-center">
                     <span>{service.name}</span>
                     <img src={service.logo} alt={`${service.name} logo`} className="object-contain w-10 h-10 ml-4" />
                     <div className='ml-auto flex items-center space-x-2'>
-                        <Switch id={service.name} checked={isSelected} onCheckedChange={() => onSelect(service.name)} />
+                        <Switch id={service.name} checked={selectedService?.name === service.name} onClick={() => setService(service)} />
                         <Label htmlFor={service.name} className='cursor-pointer'>Select</Label>
                     </div>
                 </CardTitle>
