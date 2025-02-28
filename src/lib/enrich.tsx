@@ -59,10 +59,12 @@ export const enrichService = async (service: Service): Promise<ResolvedService> 
 
         const infoURI = $rdf.sym(dependency.uri);
         const comment = store.any(infoURI, $rdf.sym('http://purl.org/dc/terms/description'));
+        const logo = store.any(infoURI, $rdf.sym('http://schema.org/logo'))?.value;
 
         return {
             ...dependency,
             desc: comment?.toString(),
+            logo
         }
     }))
 

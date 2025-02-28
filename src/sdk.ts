@@ -53,6 +53,7 @@ export interface InfraProvider {
 export interface ServiceDependency {
   name: string;
   uri: string;
+  logo?: string;
   version: string;
 }
 

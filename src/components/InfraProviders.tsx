@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { getInfraProviders, getServices } from '@/sdk';
 import { enrichInfraProvider, enrichService, ResolvedInfraProvider, ResolvedService } from '@/lib/enrich';
 import { ServiceCard } from '@/components/ServiceCard';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function InfraProvidersList() {
     const { data: infraProvidersData, error: infraProvidersError, isLoading: infraProvidersIsLoading } = useQuery({ queryKey: ['infraProviders'], queryFn: getInfraProviders });
@@ -52,18 +54,17 @@ export default function InfraProvidersList() {
             <h1 className='text-2xl font-bold mb-4'>Infra Providers</h1>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
                 {infraProviders?.map((provider) => (
-                    <Card key={provider.name} className={selectedProvider === provider.name ? 'border-2 border-blue-500' : ''} onClick={() => setSelectedProvider(provider.name)} style={{ cursor: 'pointer' }}>
+                    <Card key={provider.name} className={selectedProvider === provider.name ? 'border-2 border-blue-500' : ''}>
                         <CardHeader>
                             <div className='flex items-center gap-4'>
                                 <Avatar>
                                     <img src={provider.logo} alt={provider.name} className='w-10 h-10 rounded-full' />
                                 </Avatar>
                                 <CardTitle>{provider.name}</CardTitle>
-                                {selectedProvider === provider.name && (
-                                    <div className='ml-auto'>
-                                        <span className='text-xs text-white bg-blue-500 px-2 py-1 rounded-full'>Selected</span>
-                                    </div>
-                                )}
+                                <div className='ml-auto flex items-center space-x-2'>
+                                    <Switch id={provider.name} checked={selectedProvider === provider.name} onCheckedChange={() => setSelectedProvider(provider.name)} />
+                                    <Label htmlFor={provider.name} className='cursor-pointer'>Select</Label>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent>
