@@ -152,7 +152,7 @@ export const generateSKDWithEndpoint = (prefix: string): SDK => {
 };
 
 export async function getInfraProviders(): Promise<InfraProvider[]> {
-  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/infra-providers`;
+  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}infra-providers`;
 
   if (!endpoint) {
     throw new Error("REGISTRY_API_URL is not defined");
@@ -173,7 +173,7 @@ export async function getInfraProviders(): Promise<InfraProvider[]> {
 }
 
 export async function getServices(): Promise<Service[]> {
-  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/services`;
+  const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}services`;
 
   if (!endpoint) {
     throw new Error("REGISTRY_API_URL is not defined");
@@ -194,7 +194,7 @@ export async function getServices(): Promise<Service[]> {
 }
 
 export async function startRunner(infra: string, app: string): Promise<string> {
-  const endpoint = `${import.meta.env.VITE_RUNNER_ORCHESTRATOR_API_URL}/start`;
+  const endpoint = `${import.meta.env.VITE_RUNNER_ORCHESTRATOR_API_URL}start`;
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -204,6 +204,7 @@ export async function startRunner(infra: string, app: string): Promise<string> {
     body: JSON.stringify({
       infra,
       app,
+      registry: import.meta.env.VITE_REGISTRY_API_URL
     }),
   });
 
