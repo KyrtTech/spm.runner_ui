@@ -66,75 +66,89 @@ export interface Service {
   dependsOn: ServiceDependency[];
 }
 
-export async function getInstallPlan(): Promise<Strategy[]> {
-  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/job`;
+export interface SDK {
+  getInstallPlan: () => Promise<Strategy[]>;
+  startPlan: () => Promise<void>;
+  getPlanEnvVars: () => Promise<EnvVar[]>;
+  updateEnvVars: (envs: EnvVar[]) => Promise<void>;
 
-  if (!endpoint) {
-    throw new Error("RUNNER_API_URL is not defined");
-  }
-  const response = await fetch(endpoint);
-  if (!response.ok) {
-    throw new Error("Failed to fetch strategies");
-  }
-  const strategies: Strategy[] = await response.json();
-  return strategies;
+  endpoint: () => string;
 }
 
-export async function startPlan(): Promise<void> {
-  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/start-job`;
+export const generateSKDWithEndpoint = (prefix: string): SDK => {
+  return {
+    endpoint: () => prefix,
+    getInstallPlan: async (): Promise<Strategy[]> => {
+      const endpoint = `${prefix}/job`;
 
-  if (!endpoint) {
-    throw new Error("RUNNER_API_URL is not defined");
-  }
-  const response = await fetch(endpoint, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
+      if (!endpoint) {
+        throw new Error("RUNNER_API_URL is not defined");
+      }
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error("Failed to fetch strategies");
+      }
+      const strategies: Strategy[] = await response.json();
+      return strategies;
     },
-  });
+    startPlan: async (): Promise<void> => {
+      const endpoint = `${prefix}/start-job`;
 
-  if (!response.ok) {
-    throw new Error("Failed to start plan");
-  }
-}
-export async function getPlanEnvVars(): Promise<EnvVar[]> {
-  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
+      if (!endpoint) {
+        throw new Error("RUNNER_API_URL is not defined");
+      }
+      const response = await fetch(endpoint, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-  if (!endpoint) {
-    throw new Error("RUNNER_API_URL is not defined");
-  }
-  const response = await fetch(endpoint);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch environment variables");
-  }
-
-  const envVarsMap: Record<string, string> = await response.json();
-  const envVars: EnvVar[] = Object.entries(envVarsMap).map(([key, value]) => ({
-    key,
-    value,
-  }));
-
-  return envVars;
-}
-
-export async function updateEnvVars(envVars: EnvVar[]): Promise<void> {
-  const endpoint = `${import.meta.env.VITE_RUNNER_API_URL}/envs`;
-
-  if (!endpoint) {
-    throw new Error("RUNNER_API_URL is not defined");
-  }
-
-  await fetch(endpoint, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
+      if (!response.ok) {
+        throw new Error("Failed to start plan");
+      }
     },
-    body: JSON.stringify(
-      Object.fromEntries(envVars.map(({ key, value }) => [key, value]))
-    ),
-  });
-}
+    getPlanEnvVars: async (): Promise<EnvVar[]> => {
+      const endpoint = `${prefix}/envs`;
+
+      if (!endpoint) {
+        throw new Error("RUNNER_API_URL is not defined");
+      }
+      const response = await fetch(endpoint);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch environment variables");
+      }
+
+      const envVarsMap: Record<string, string> = await response.json();
+      const envVars: EnvVar[] = Object.entries(envVarsMap).map(
+        ([key, value]) => ({
+          key,
+          value,
+        })
+      );
+
+      return envVars;
+    },
+    updateEnvVars: async (envVars: EnvVar[]): Promise<void> => {
+      const endpoint = `${prefix}/envs`;
+
+      if (!endpoint) {
+        throw new Error("RUNNER_API_URL is not defined");
+      }
+
+      await fetch(endpoint, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(
+          Object.fromEntries(envVars.map(({ key, value }) => [key, value]))
+        ),
+      });
+    },
+  };
+};
 
 export async function getInfraProviders(): Promise<InfraProvider[]> {
   const endpoint = `${import.meta.env.VITE_REGISTRY_API_URL}/infra-providers`;
@@ -176,4 +190,23 @@ export async function getServices(): Promise<Service[]> {
   }
 
   return response.json();
+}
+
+export async function startRunner(infra: string, app: string): Promise<string> {
+  const endpoint = `${import.meta.env.VITE_RUNNER_ORCHESTRATOR_API_URL}/start`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      infra,
+      app,
+    }),
+  });
+
+  const body = await response.json();
+
+  return body.endpoint;
 }

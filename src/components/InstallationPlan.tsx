@@ -9,22 +9,28 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { getInstallPlan, startPlan, type Strategy } from '@/sdk'
+import { type Strategy } from '@/sdk'
 import { default as FileTreeDisplay, TreeNode } from '@/components/FileTreeComponent';
 import DownloadLink from './DownloadLink';
+import { useWizardStore } from '@/store/wizardStore'
 
 export default function InstallationPlanDisplay() {
   const [data, setData] = useState<Strategy[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [expandedStates, setExpandedStates] = useState<boolean[]>([])
+  const { sdk } = useWizardStore();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStrategies = async () => {
+      if (!sdk) {
+        return;
+      }
+
       try {
-        const strategies: Strategy[] = await getInstallPlan()
+        const strategies: Strategy[] = await sdk.getInstallPlan()
         setData(strategies)
         setExpandedStates(new Array(strategies.length).fill(false))
       } catch (err) {
@@ -35,7 +41,7 @@ export default function InstallationPlanDisplay() {
     }
 
     fetchStrategies()
-  }, [])
+  }, [sdk])
 
   const handleParameterChange = (strategyIndex: number, paramIndex: number, value: string) => {
     const newData = [...data]
@@ -52,7 +58,11 @@ export default function InstallationPlanDisplay() {
   }
 
   const handleNext = async () => {
-    await startPlan();
+    if (!sdk) {
+      return;
+    }
+
+    await sdk.startPlan();
     navigate('/evaluate-env-vars')
   }
 

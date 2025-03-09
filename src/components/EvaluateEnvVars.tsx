@@ -5,17 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { getPlanEnvVars, updateEnvVars, type EnvVar } from '@/sdk'
+import { type EnvVar } from '@/sdk'
+import { useWizardStore } from '@/store/wizardStore'
 
 export default function EnvironmentVarsPage() {
   const [envVars, setEnvVars] = useState<EnvVar[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { sdk } = useWizardStore();
 
   useEffect(() => {
     const fetchEnvVars = async () => {
+      if (!sdk) {
+        return
+      }
+
       try {
-        const fetchedEnvVars = await getPlanEnvVars()
+        const fetchedEnvVars = await sdk.getPlanEnvVars()
         setEnvVars(fetchedEnvVars)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
@@ -25,7 +31,7 @@ export default function EnvironmentVarsPage() {
     }
 
     fetchEnvVars()
-  }, [])
+  }, [sdk])
 
   if (loading) {
     return <div>Loading environment variables...</div>
@@ -42,7 +48,7 @@ export default function EnvironmentVarsPage() {
   }
 
   const handleNextClick = async () => {
-    await updateEnvVars(envVars);
+    await sdk?.updateEnvVars(envVars);
   }
 
   return (

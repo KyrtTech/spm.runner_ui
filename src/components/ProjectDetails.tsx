@@ -5,15 +5,25 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { useWizardStore } from '@/store/wizardStore'
+import { generateSKDWithEndpoint, startRunner } from "@/sdk";
 
 export function ProjectDetails() {
-    const { setProjectDetails, projectName, environment } = useWizardStore()
+    const { setProjectDetails, projectName, environment, selectedInfraProvider, selectedService, setSDK } = useWizardStore()
     const navigate = useNavigate()
 
     const environments = ["development", "staging", "production"];
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (projectName.trim() && environment) {
+
+            //  start runner
+            if (!selectedInfraProvider || !selectedService) {
+                return
+            }
+
+            const endpoint = await startRunner(selectedInfraProvider.name, selectedService.name);
+            setSDK(generateSKDWithEndpoint(endpoint));
+
             navigate('/install-plan')
         }
     };
@@ -51,13 +61,13 @@ export function ProjectDetails() {
                 </div>
 
                 <div className="flex justify-between pt-4">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={() => navigate('/')}
                     >
                         Previous
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleNext}
                         disabled={!projectName.trim() || !environment}
                     >

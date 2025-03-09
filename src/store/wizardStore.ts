@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { ResolvedInfraProvider, ResolvedService } from '@/lib/enrich'
+import { SDK } from '@/sdk'
 
 interface WizardState {
     // Selected values
@@ -7,11 +8,13 @@ interface WizardState {
     selectedService: ResolvedService | null
     projectName: string
     environment: string
+    sdk: SDK | null
 
     // Actions
     setInfraProvider: (provider: ResolvedInfraProvider | null) => void
     setService: (service: ResolvedService | null) => void
     setProjectDetails: (name: string, env: string) => void
+    setSDK: (sdk: SDK) => void
     resetWizard: () => void
 }
 
@@ -21,6 +24,8 @@ export const useWizardStore = create<WizardState>((set) => ({
     selectedService: null,
     projectName: '',
     environment: '',
+    runnerEndpoint: '',
+    sdk: null,
 
     // Actions
     setInfraProvider: (provider) => set({ selectedInfraProvider: provider }),
@@ -28,6 +33,9 @@ export const useWizardStore = create<WizardState>((set) => ({
     setProjectDetails: (name, env) => set({ 
         projectName: name, 
         environment: env 
+    }),
+    setSDK: (sdk) => set({
+        sdk
     }),
     resetWizard: () => set({ 
         selectedInfraProvider: null,
