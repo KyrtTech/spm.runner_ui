@@ -45,6 +45,7 @@ export interface InfraConfig {
 }
 export interface InfraProvider {
   name: string;
+  title: string;
   description: string;
   logo: string;
   config: InfraConfig[];

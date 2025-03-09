@@ -61,9 +61,9 @@ export default function InitialSelection() {
                         <CardHeader>
                             <div className='flex items-center gap-4'>
                                 <Avatar>
-                                    <img src={provider.logo} alt={provider.name} className='w-10 h-10 rounded-full' />
+                                    <img src={provider.logo} alt={provider.title} className='w-10 h-10 rounded-full' />
                                 </Avatar>
-                                <CardTitle>{provider.name}</CardTitle>
+                                <CardTitle>{provider.title}</CardTitle>
                                 <div className='ml-auto flex items-center space-x-2'>
                                     <Switch id={provider.name} checked={selectedInfraProvider?.name === provider.name} onCheckedChange={() => setInfraProvider(provider)} />
                                     <Label htmlFor={provider.name} className='cursor-pointer'>Select</Label>
