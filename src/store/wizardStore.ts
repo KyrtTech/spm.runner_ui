@@ -2,6 +2,11 @@ import { create } from 'zustand'
 import { ResolvedInfraProvider, ResolvedService } from '@/lib/enrich'
 import { SDK } from '@/sdk'
 
+export type EnvVar = {
+    name: string;
+    value: string;
+};
+
 interface WizardState {
     // Selected values
     selectedInfraProvider: ResolvedInfraProvider | null
@@ -9,12 +14,14 @@ interface WizardState {
     projectName: string
     environment: string
     sdk: SDK | null
+    envVars: EnvVar[];
 
     // Actions
     setInfraProvider: (provider: ResolvedInfraProvider | null) => void
     setService: (service: ResolvedService | null) => void
     setProjectDetails: (name: string, env: string) => void
     setSDK: (sdk: SDK) => void
+    setEnvVars: (vars: EnvVar[]) => void
     resetWizard: () => void
 }
 
@@ -26,6 +33,7 @@ export const useWizardStore = create<WizardState>((set) => ({
     environment: '',
     runnerEndpoint: '',
     sdk: null,
+    envVars: [],
 
     // Actions
     setInfraProvider: (provider) => set({ selectedInfraProvider: provider }),
@@ -36,6 +44,9 @@ export const useWizardStore = create<WizardState>((set) => ({
     }),
     setSDK: (sdk) => set({
         sdk
+    }),
+    setEnvVars: (vars: EnvVar[]) => set({
+        envVars: vars
     }),
     resetWizard: () => set({ 
         selectedInfraProvider: null,

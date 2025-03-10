@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { Trash, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,10 +9,9 @@ import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHea
 import { useNavigate } from "react-router-dom";
 import { useWizardStore } from '@/store/wizardStore'
 import { generateSKDWithEndpoint, startRunner } from "@/sdk";
-import { useState } from 'react';
 
 export function ProjectDetails() {
-    const { setProjectDetails, projectName, environment, selectedInfraProvider, selectedService, setSDK } = useWizardStore()
+    const { setProjectDetails, projectName, environment, selectedInfraProvider, selectedService, setSDK, envVars, setEnvVars } = useWizardStore()
     const navigate = useNavigate()
     const [isRunning, setIsRunning] = useState(false);
 
@@ -33,6 +34,24 @@ export function ProjectDetails() {
         }
     };
 
+    const addEnvVar = () => {
+        setEnvVars([...envVars, { name: '', value: '' }]);
+    };
+
+    const updateEnvVar = (index: number, field: string, value: string) => {
+        const updatedEnvVars = envVars.map((v, idx) => {
+            if (idx === index) {
+                return { ...v, [field]: value };
+            }
+            return v;
+        });
+        setEnvVars(updatedEnvVars);
+    };
+
+    const removeEnvVar = (index: number) => {
+        setEnvVars(envVars.filter((_, idx) => idx !== index));
+    };
+
     return (
         <>
             <AlertDialog open={isRunning}>
@@ -45,7 +64,6 @@ export function ProjectDetails() {
                     </AlertDialogHeader>
                 </AlertDialogContent>
             </AlertDialog>
-
 
             <Card className="w-full max-w-2xl mx-auto">
                 <CardHeader>
@@ -76,6 +94,38 @@ export function ProjectDetails() {
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2"><Label>Environment Variables</Label></div>
+                        {envVars.map((v, index) => (
+                            <div key={index} className="flex items-center space-x-4">
+                                <Input
+                                    placeholder="Name"
+                                    value={v.name}
+                                    onChange={(e) => updateEnvVar(index, 'name', e.target.value)}
+                                />
+                                <Input
+                                    placeholder="Value"
+                                    value={v.value}
+                                    onChange={(e) => updateEnvVar(index, 'value', e.target.value)}
+                                />
+                                <Button
+                                    onClick={() => removeEnvVar(index)}
+                                    variant="destructive"
+                                >
+                                    <Trash />
+                                    Remove
+                                </Button>
+                            </div>
+                        ))}
+                        <Button
+                            onClick={addEnvVar}
+                            variant="outline"
+                        >
+                            <Plus />
+                            Add Environment Variable
+                        </Button>
                     </div>
 
                     <div className="flex justify-between pt-4">
