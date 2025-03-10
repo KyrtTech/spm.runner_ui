@@ -63,7 +63,7 @@ export function ProjectDetails() {
                 <div className="flex justify-between pt-4">
                     <Button
                         variant="outline"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate(-1)}
                     >
                         Previous
                     </Button>
